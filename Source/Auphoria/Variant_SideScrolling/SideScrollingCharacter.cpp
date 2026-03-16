@@ -119,6 +119,7 @@ void ASideScrollingCharacter::Landed(const FHitResult& Hit)
 {
 	// reset the double jump
 	bHasDoubleJumped = false;
+	ASideScrollingCharacter::ResetWallJump();
 }
 
 void ASideScrollingCharacter::OnMovementModeChanged(EMovementMode PrevMovementMode, uint8 PreviousCustomMode /*= 0*/)
@@ -234,70 +235,69 @@ void ASideScrollingCharacter::MultiJump()
 		return;
 	}
 
-	// if we have a horizontal input, try for wall jump first
-	if (!bHasWallJumped && !FMath::IsNearlyZero(ActionValueY))
+	//// if we have a horizontal input, try for wall jump first
+	//if (!bHasWallJumped && !FMath::IsNearlyZero(ActionValueY))
+	//{
+	//	// trace ahead of the character for walls
+	//	FHitResult OutHit;
+
+	//	const FVector Start = GetActorLocation();
+	//	const FVector End = Start + (FVector(ActionValueY > 0.0f ? 1.0f : -1.0f, 0.0f, 0.0f) * WallJumpTraceDistance);
+
+	//	FCollisionQueryParams QueryParams;
+	//	QueryParams.AddIgnoredActor(this);
+
+	//	GetWorld()->LineTraceSingleByChannel(OutHit, Start, End, ECC_Visibility, QueryParams);
+
+	//	if (OutHit.bBlockingHit)
+	//	{
+	//		// rotate to the bounce direction
+	//		const FRotator BounceRot = UKismetMathLibrary::MakeRotFromX(OutHit.ImpactNormal);
+	//		SetActorRotation(FRotator(0.0f, BounceRot.Yaw, 0.0f));
+
+	//		// calculate the impulse vector
+	//		FVector WallJumpImpulse = OutHit.ImpactNormal * WallJumpHorizontalImpulse;
+	//		WallJumpImpulse.Z = GetCharacterMovement()->JumpZVelocity * WallJumpVerticalMultiplier;
+
+	//		// launch the character away from the wall
+	//		LaunchCharacter(WallJumpImpulse, true, true);
+
+	//		// enable wall jump lockout for a bit
+	//		bHasWallJumped = true;
+
+	//		// schedule wall jump lockout reset
+	//		GetWorld()->GetTimerManager().SetTimer(WallJumpTimer, this, &ASideScrollingCharacter::ResetWallJump, DelayBetweenWallJumps, false);
+
+	//		return;
+	//	}
+	//}
+
+	//// test for double jump only if we haven't already tested for wall jump
+	//if (!bHasWallJumped)
+	//{
+	
+	// are we still within coyote time frames?
+	if (GetWorld()->GetTimeSeconds() - LastFallTime < MaxCoyoteTime)
 	{
-		// trace ahead of the character for walls
-		FHitResult OutHit;
+		UE_LOG(LogTemp, Warning, TEXT("Coyote Jump"));
 
-		const FVector Start = GetActorLocation();
-		const FVector End = Start + (FVector(ActionValueY > 0.0f ? 1.0f : -1.0f, 0.0f, 0.0f) * WallJumpTraceDistance);
+		// use the built-in CMC functionality to do the jump
+		Jump();
 
-		FCollisionQueryParams QueryParams;
-		QueryParams.AddIgnoredActor(this);
-
-		GetWorld()->LineTraceSingleByChannel(OutHit, Start, End, ECC_Visibility, QueryParams);
-
-		if (OutHit.bBlockingHit)
-		{
-			// rotate to the bounce direction
-			const FRotator BounceRot = UKismetMathLibrary::MakeRotFromX(OutHit.ImpactNormal);
-			SetActorRotation(FRotator(0.0f, BounceRot.Yaw, 0.0f));
-
-			// calculate the impulse vector
-			FVector WallJumpImpulse = OutHit.ImpactNormal * WallJumpHorizontalImpulse;
-			WallJumpImpulse.Z = GetCharacterMovement()->JumpZVelocity * WallJumpVerticalMultiplier;
-
-			// launch the character away from the wall
-			LaunchCharacter(WallJumpImpulse, true, true);
-
-			// enable wall jump lockout for a bit
-			bHasWallJumped = true;
-
-			// schedule wall jump lockout reset
-			GetWorld()->GetTimerManager().SetTimer(WallJumpTimer, this, &ASideScrollingCharacter::ResetWallJump, DelayBetweenWallJumps, false);
-
-			return;
-		}
-	}
-
-
-
-	// test for double jump only if we haven't already tested for wall jump
-	if (!bHasWallJumped)
-	{
-		// are we still within coyote time frames?
-		if (GetWorld()->GetTimeSeconds() - LastFallTime < MaxCoyoteTime)
-		{
-			UE_LOG(LogTemp, Warning, TEXT("Coyote Jump"));
-
-			// use the built-in CMC functionality to do the jump
-			Jump();
-
-		// no coyote time jump
-		} else {
+	// no coyote time jump
+	} else {
 		
-			// The movement component handles double jump but we still need to manage the flag for animation
-			if (!bHasDoubleJumped)
-			{
-				// raise the double jump flag
-				bHasDoubleJumped = true;
+		// The movement component handles double jump but we still need to manage the flag for animation
+		if (!bHasDoubleJumped)
+		{
+			// raise the double jump flag
+			bHasDoubleJumped = true;
 
-				// let the CMC handle jump
-				Jump();
-			}
+			// let the CMC handle jump
+			Jump();
 		}
 	}
+	//}
 }
 
 void ASideScrollingCharacter::CheckForSoftCollision()
