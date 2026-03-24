@@ -7,6 +7,8 @@
 #include "Components/SphereComponent.h"
 #include "Components/SceneComponent.h"
 #include "Engine/World.h"
+#include <Core/Public/Subsystems/AugmentSubsystem.h>
+#include <Core/Public/Augments/Player/PlayerSpeedUp.h>
 
 ASideScrollingPickup::ASideScrollingPickup()
 {
@@ -46,6 +48,7 @@ void ASideScrollingPickup::BeginOverlap(AActor* OverlappedActor, AActor* OtherAc
 
 				// disable collision so we don't get picked up again
 				SetActorEnableCollision(false);
+				GetGameInstance()->GetSubsystem<UAugmentSubsystem>()->TriggerAugment(new PlayerSpeedUp());
 
 				// Call the BP handler. It will be responsible for destroying the pickup
 				BP_OnPickedUp();
