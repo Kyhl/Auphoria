@@ -5,13 +5,14 @@
 
 
 
-void PlayerSpeedUp::ApplyEffect()
+void PlayerSpeedUp::ApplyEffect(AActor* target)
 {
-	//APawn* pawn = GetWorld()->GetFirstPlayerController()->GetPawn();
+	/*Super::ApplyEffect(target);
+	APawn* pawn = GetWorld()->GetFirstPlayerController()->GetPawn();*/
 	//pawn->TurnOff();
 	UE_LOG(LogTemp, Warning, TEXT("Pawn Disabled hehe"));
 }
-void PlayerSpeedUp::UnApplyEffect()
+void PlayerSpeedUp::UnApplyEffect(AActor* target)
 {
 
 }

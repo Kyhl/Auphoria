@@ -14,6 +14,6 @@ class AUPHORIA_API PlayerSpeedUp : public IAugmentBase
 public:
 
 
-	void ApplyEffect() override;
-	void UnApplyEffect() override;
+	void ApplyEffect(AActor* target) override;
+	void UnApplyEffect(AActor* target) override;
 };

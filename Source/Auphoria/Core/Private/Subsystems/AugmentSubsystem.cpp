@@ -16,8 +16,5 @@ void UAugmentSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 
 void UAugmentSubsystem::TriggerAugment(IAugmentBase* Augment)
 {
-	Augment->ApplyEffect();
-	/*APawn* pawn = GetWorld()->GetFirstPlayerController()->GetPawn();
-	pawn->TurnOff();
-	UE_LOG(LogTemp, Warning, TEXT("Pawn Disabled hehe"));*/
+	Augment->ApplyEffect(GetWorld()->GetFirstPlayerController()->GetPawn());
 }
